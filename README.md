@@ -19,28 +19,38 @@ Tecnologias
 
 Controles
 
- Duas mãos fechadas: move a peca 
- Pinca com a mao direita: rotaciona a peca horizontal
- Pinca com a mao esquerda: rotaciona a peca vertical
+- Pinça (polegar + indicador): Agarra a peça mais próxima da mão virtual.
+- Mover a mão com pinça ativa: Arrasta a peça pela tela.
+- Girar o pulso com pinça ativa: Rotaciona a peça.
+- Abrir a mão (soltar a pinça): Solta a peça e a gravidade volta a agir.
+- Espaço (teclado): Spawna uma nova peça no topo da tela.
 
 Estrutura
 
+   constantes.py
+
+Parâmetros de configuração do jogo (gravidade, massa, atrito, thresholds de pinça, posição da câmera, cores das peças, etc).
+
+    peca.py
+
+Classe Peca. Encapsula o corpo rígido (Bullet), o visual (Ursina) e a lógica de agarrar, soltar, mover e rotacionar.
+
     tracker.py
 
-HandTracker - Inicializa a webcam e o MediaPipe. Processa cada frame e identifica os gestos das maos.
-Resultado_gesto - Armazena o resultado dos gestos detectados em um frame (punhos fechados, pinca esquerda, pinca direita).
+Captura da webcam via OpenCV e processamento dos frames com MediaPipe. Detecta os 21 landmarks da mão e calcula os gestos (pinça ativa, ângulo do pulso, posição da palma).
 
-    logica_jogo.py
+    fisica.py
 
-Cubo_unico - Representa um unico cubo dentro de uma peca. Guarda sua posicao relativa (x, y, z).
-Grid - Matriz tridimensional do campo de jogo. Controla colisoes, empilhamento e limpeza de camadas completas.
-Pecas_possiveis - Define os formatos disponiveis das pecas 3D e suas rotacoes.
+Inicialização do BulletWorld e criação dos corpos rígidos estáticos (chão, paredes). Define gravidade e substeps da simulação.
 
-    graficos_3d.py
+    graficos.py
 
-Visual_do_bloco - Representacao grafica de um cubo na tela usando Ursina (cor, posicao, textura).
-Visual_do_Grid - Desenha a arena 3D (paredes, chao, iluminacao) e sincroniza a visualizacao com a logica do jogo.
+Configuração da câmera, iluminação e HUD. Sincroniza os visuais com os nós físicos do Bullet via reparent_to.
 
-main.py
+    jogo.py
 
-Ponto de entrada. Instancia todas as classes, conecta os gestos da webcam a logica do jogo e roda o loop principal do Ursina.
+Lógica central do jogo. Conecta o tracker às peças: converte coordenadas dos landmarks em posições do mundo, gerencia o estado de agarrar/soltar com histerese e spawna novas peças.
+    
+    main.py
+
+Ponto de entrada. Instancia os módulos, inicia a Ursina e roda o loop principal.
