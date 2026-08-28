@@ -1,12 +1,21 @@
 T-Hand
 
-Tetris 3D controlado por rastreamento de mãos via webcam. As pecas descem em um fosso tridimensional e o jogador usa gestos para mover e rotacionar.
+Um jogo de empilhar blocos baseado em física (estilo Tricky Towers), controlado através do rastreamento da mão do jogador via webcam. O objetivo é empilhar peças geométricas o mais alto possível sem deixar a torre perder o equilíbrio e desmoronar.
+
+Principais Mecânicas:
+
+- Rastreamento da Mão: O jogo desenha e espelha os movimentos da mão do jogador em tempo real na tela.
+- Agarrar (Pinça): O jogador junta o polegar e o indicador para segurar e mover uma peça.
+- Rotação: A peça rotaciona acompanhando a inclinação real do pulso do jogador.
+- Física Híbrida (2D/3D): As peças são modelos 3D que caem com gravidade e sofrem colisões realistas, mas a física é travada nos eixos X e Y para evitar frustrações com a falta de percepção de profundidade da webcam.
 
 Tecnologias
 
- Python
- Ursina Engine (motor 3D)
- MediaPipe (rastreamento de mãs)
+- Python: Linguagem de programação base.
+- MediaPipe: Rastreamento contínuo dos 21 pontos (landmarks) da mão.
+- OpenCV: Captura e processamento inicial dos frames da webcam.
+- Ursina Engine: Motor gráfico para renderização do ambiente e iluminação 3D.
+- Panda3D Bullet: Motor de física que controla a gravidade, colisões, atrito e corpos rígidos.
 
 Controles
 
