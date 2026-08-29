@@ -3,6 +3,6 @@ class HandTracker:
         pass
 
 
-class Resultado_gesto:
+class ResultadoGesto:
     def __init__(self):
         pass

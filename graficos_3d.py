@@ -1,8 +1,8 @@
-class Visual_do_bloco:
+class VisualBloco:
     def __init__(self):
         pass
 
 
-class Visual_do_Grid:
+class VisualGrid:
     def __init__(self):
         pass

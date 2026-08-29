@@ -19,18 +19,18 @@ Tetris 3D controlado por rastreamento de mãos via webcam. As peças descem em u
 ➔```tracker.py```
 
 - HandTracker - Inicializa a webcam e o MediaPipe. Processa cada frame e identifica os gestos das mãos;
-- Resultado_gesto - Armazena o resultado dos gestos detectados em um frame (punhos fechados, pinça esquerda, pinça direita).
+- ResultadoGesto - Armazena o resultado dos gestos detectados em um frame (punhos fechados, pinça esquerda, pinça direita).
 
 ➔```logica_jogo.py```
 
-- Cubo_unico - Representa um único cubo dentro de uma peça. Guarda sua posiçao relativa (x, y, z);
+- CuboUnico - Representa um único cubo dentro de uma peça. Guarda sua posiçao relativa (x, y, z);
 - Grid - Matriz tridimensional do campo de jogo. Controla colisões, empilhamento e limpeza de camadas completas;
-- Pecas_possiveis - Define os formatos disponíveis das peças 3D e suas rotações.
+- PecasPossiveis - Define os formatos disponíveis das peças 3D e suas rotações.
 
 ➔```graficos_3d.py```
 
-- Visual_do_bloco - Representação gráfica de um cubo na tela usando Ursina (cor, posição, textura);
-- Visual_do_Grid - Desenha a arena 3D (paredes, chão, iluminação) e sincroniza a visualização com a lógica do jogo.
+- VisualBloco - Representação gráfica de um cubo na tela usando Ursina (cor, posição, textura);
+- VisualGrid - Desenha a arena 3D (paredes, chão, iluminação) e sincroniza a visualização com a lógica do jogo.
 
 ➔```main.py```
 

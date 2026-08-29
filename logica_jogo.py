@@ -1,4 +1,4 @@
-class Cubo_unico:
+class CuboUnico:
     def __init__(self):
         pass
 
@@ -8,6 +8,6 @@ class Grid:
         pass
 
 
-class Pecas_possiveis:
+class PecasPossiveis:
     def __init__(self):
         pass
