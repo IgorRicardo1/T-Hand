@@ -1,37 +1,37 @@
-T-Hand
+# T-Hand
 
-Tetris 3D controlado por rastreamento de mãos via webcam. As pecas descem em um fosso tridimensional e o jogador usa gestos para mover e rotacionar.
+Tetris 3D controlado por rastreamento de mãos via webcam. As peças descem em um fosso tridimensional e o jogador usa gestos para mover e rotacionar.
 
-Tecnologias
+## Tecnologias
 
- Python
- Ursina Engine (motor 3D)
- MediaPipe (rastreamento de mãs)
+ - Python;
+ - Ursina Engine (motor 3D);
+ - MediaPipe (rastreamento de mãos).
 
-Controles
+## Controles
 
- Duas mãos fechadas: move a peca 
- Pinca com a mao direita: rotaciona a peca horizontal
- Pinca com a mao esquerda: rotaciona a peca vertical
+ - Duas mãos fechadas: move a peça;
+ - Pinça com a mão direita: rotaciona a peça horizontal;
+ - Pinça com a mão esquerda: rotaciona a peça vertical.
 
-Estrutura
+## Estrutura
 
-    tracker.py
+➔```tracker.py```
 
-HandTracker - Inicializa a webcam e o MediaPipe. Processa cada frame e identifica os gestos das maos.
-Resultado_gesto - Armazena o resultado dos gestos detectados em um frame (punhos fechados, pinca esquerda, pinca direita).
+- HandTracker - Inicializa a webcam e o MediaPipe. Processa cada frame e identifica os gestos das mãos;
+- Resultado_gesto - Armazena o resultado dos gestos detectados em um frame (punhos fechados, pinça esquerda, pinça direita).
 
-    logica_jogo.py
+➔```logica_jogo.py```
 
-Cubo_unico - Representa um unico cubo dentro de uma peca. Guarda sua posicao relativa (x, y, z).
-Grid - Matriz tridimensional do campo de jogo. Controla colisoes, empilhamento e limpeza de camadas completas.
-Pecas_possiveis - Define os formatos disponiveis das pecas 3D e suas rotacoes.
+- Cubo_unico - Representa um único cubo dentro de uma peça. Guarda sua posiçao relativa (x, y, z);
+- Grid - Matriz tridimensional do campo de jogo. Controla colisões, empilhamento e limpeza de camadas completas;
+- Pecas_possiveis - Define os formatos disponíveis das peças 3D e suas rotações.
 
-    graficos_3d.py
+➔```graficos_3d.py```
 
-Visual_do_bloco - Representacao grafica de um cubo na tela usando Ursina (cor, posicao, textura).
-Visual_do_Grid - Desenha a arena 3D (paredes, chao, iluminacao) e sincroniza a visualizacao com a logica do jogo.
+- Visual_do_bloco - Representação gráfica de um cubo na tela usando Ursina (cor, posição, textura);
+- Visual_do_Grid - Desenha a arena 3D (paredes, chão, iluminação) e sincroniza a visualização com a lógica do jogo.
 
-main.py
+➔```main.py```
 
-Ponto de entrada. Instancia todas as classes, conecta os gestos da webcam a logica do jogo e roda o loop principal do Ursina.
+- Ponto de entrada. Instancia todas as classes, conecta os gestos da webcam a lógica do jogo e roda o loop principal do Ursina.
