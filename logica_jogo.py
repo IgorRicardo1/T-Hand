@@ -52,20 +52,75 @@ class Peca:
 
 
 class Grid:
-    def __init__(self):
-        pass
+    def __init__(self, largura=10, altura=20):
+        self.largura = largura
+        self.altura = altura
+        self.celulas = [[None for _ in range(largura)] for _ in range(altura)]
+
+    def valida_posicao(self, peca):
+        for cubo in peca.cubos:
+            x_real = peca.origem[0] + cubo.x
+            y_real = peca.origem[1] + cubo.y
+            
+            if x_real < 0 or x_real >= self.largura:
+                return False
+            
+            if y_real >= self.altura:
+                return False
+            
+            if y_real >= 0:
+                if self.celulas[y_real][x_real] is not None:
+                    return False
+                    
+        return True
+
+    def fixar_peca(self, peca):
+        for cubo in peca.cubos:
+            x_real = peca.origem[0] + cubo.x
+            y_real = peca.origem[1] + cubo.y
+            
+            if y_real >= 0:
+                self.celulas[y_real][x_real] = peca.letra
 
 
 class Jogo:
     def __init__(self):
-        pass
+        self.grid = Grid()
+        self.nova_peca()
+
+        self.gravidade = 1
+
+        self.intervalo_queda = 1.0  # em Segundos
+        self.tempo_acumulado = 0.0  # Cronômetro interno
+    
+    def nova_peca(self):
+        self.peca_atual = Peca(PecasPossiveis.sortear())
+    
+    def atualizar(self, dt):
+        self.tempo_acumulado += dt
+
+        while self.tempo_acumulado >= self.intervalo_queda:
+            self.tempo_acumulado -= self.intervalo_queda
+            
+            if not self.tentar_mover(0, self.gravidade):
+                self.grid.fixar_peca(self.peca_atual)
+                self.nova_peca()
 
 
-if __name__ == "__main__":
-    """testes"""
-    sorteio = PecasPossiveis.sortear()
-    print(sorteio)
-    peca = Peca(sorteio)
-    print(peca.cubos)
-    peca.rodar()
-    print(peca.cubos)
+    def tentar_rotacionar(self, horario=True):
+        self.peca_atual.rodar(horario)
+        
+        if not self.grid.valida_posicao(self.peca_atual):
+            self.peca_atual.rodar(not horario)
+    
+    def tentar_mover(self, dx, dy):
+        self.peca_atual.mover(dx, dy)
+        
+        if not self.grid.valida_posicao(self.peca_atual):
+            self.peca_atual.mover(-dx, -dy)
+            return False
+            
+        return True
+
+
+
