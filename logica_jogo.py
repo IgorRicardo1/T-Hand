@@ -124,3 +124,56 @@ class Jogo:
 
 
 
+
+
+
+def renderizar_console(jogo):
+    # Imprime algumas linhas em branco para "limpar" o console
+    print("\n" * 10)
+    
+    # Monta a tela vazia (matriz de strings)
+    tela = [["." for _ in range(jogo.grid.largura)] for _ in range(jogo.grid.altura)]
+    
+    # 1. Pinta as células fixadas
+    for y in range(jogo.grid.altura):
+        for x in range(jogo.grid.largura):
+            if jogo.grid.celulas[y][x] is not None:
+                tela[y][x] = "#"  # '# 'representa blocos parados
+                
+    # 2. Pinta a peça atual (se estiver dentro da tela)
+    for cubo in jogo.peca_atual.cubos:
+        x_real = jogo.peca_atual.origem[0] + cubo.x
+        y_real = jogo.peca_atual.origem[1] + cubo.y
+        if 0 <= y_real < jogo.grid.altura and 0 <= x_real < jogo.grid.largura:
+            tela[y_real][x_real] = "@"  # '@' representa a peça caindo
+            
+    # 3. Desenha a borda e as linhas
+    print("=" * (jogo.grid.largura * 2 + 3))
+    for linha in tela:
+        print("| " + " ".join(linha) + " |")
+    print("=" * (jogo.grid.largura * 2 + 3))
+
+
+
+if __name__ == "__main__":
+    jogo = Jogo()
+    
+    while True:
+        renderizar_console(jogo)
+        
+        print("Controles: [A] Esquerda | [D] Direita | [W] Girar | [Enter] Apenas Cair | [Q] Sair")
+        comando = input("Digite um comando: ").strip().lower()
+        
+        if comando == 'q':
+            print("Saindo do teste...")
+            break
+        elif comando == 'a':
+            jogo.tentar_mover(-1, 0)
+        elif comando == 'd':
+            jogo.tentar_mover(1, 0)
+        elif comando == 'w':
+            jogo.tentar_rotacionar(horario=True)
+            
+        # Todo turno fazemos a peça cair um bloco (a gravidade)
+        print(jogo.tempo_acumulado)
+        jogo.atualizar(0.5)
