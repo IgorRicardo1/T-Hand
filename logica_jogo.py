@@ -94,19 +94,28 @@ class Grid:
 
 
 class Jogo:
+    NUMERO_PONTOS = {1: 100, 2: 300, 3: 600, 4: 1000}
+
     def __init__(self):
+        self.pontos = 0
+        self.linhas = 0
         self.grid = Grid()
+        self.game_over = False
         self.nova_peca()
 
         self.gravidade = 1
 
-        self.intervalo_queda = 1.0  # em Segundos
-        self.tempo_acumulado = 0.0  # Cronômetro interno
+        self.intervalo_queda = 1.0
+        self.tempo_acumulado = 0.0
 
     def nova_peca(self):
         self.peca_atual = Peca(PecasPossiveis.sortear())
+        if not self.grid.valida_posicao(self.peca_atual):
+            self.game_over = True
 
     def atualizar(self, dt):
+        if self.game_over:
+            return
         self.tempo_acumulado += dt
 
         while self.tempo_acumulado >= self.intervalo_queda:
@@ -114,16 +123,22 @@ class Jogo:
 
             if not self.tentar_mover(0, self.gravidade):
                 self.grid.fixar_peca(self.peca_atual)
-                self.grid.limpar_linha()
+                linhas_eliminadas = self.grid.limpar_linha()
+                self.linhas += linhas_eliminadas
+                self.pontos += self.NUMERO_PONTOS.get(linhas_eliminadas, 0)
                 self.nova_peca()
 
     def tentar_rotacionar(self, horario=True):
+        if self.game_over:
+            return
         self.peca_atual.rodar(horario)
 
         if not self.grid.valida_posicao(self.peca_atual):
             self.peca_atual.rodar(not horario)
 
     def tentar_mover(self, dx, dy):
+        if self.game_over:
+            return False
         self.peca_atual.mover(dx, dy)
 
         if not self.grid.valida_posicao(self.peca_atual):
@@ -134,26 +149,20 @@ class Jogo:
 
 
 def renderizar_console(jogo):
-    # Imprime algumas linhas em branco para "limpar" o console
     print("\n" * 10)
-
-    # Monta a tela vazia (matriz de strings)
     tela = [["." for _ in range(jogo.grid.largura)] for _ in range(jogo.grid.altura)]
 
-    # 1. Pinta as células fixadas
     for y in range(jogo.grid.altura):
         for x in range(jogo.grid.largura):
             if jogo.grid.celulas[y][x] is not None:
-                tela[y][x] = "#"  # '# 'representa blocos parados
+                tela[y][x] = "#"
 
-    # 2. Pinta a peça atual (se estiver dentro da tela)
     for cubo in jogo.peca_atual.cubos:
         x_real = jogo.peca_atual.origem[0] + cubo.x
         y_real = jogo.peca_atual.origem[1] + cubo.y
         if 0 <= y_real < jogo.grid.altura and 0 <= x_real < jogo.grid.largura:
-            tela[y_real][x_real] = "@"  # '@' representa a peça caindo
+            tela[y_real][x_real] = "@"
 
-    # 3. Desenha a borda e as linhas
     print("=" * (jogo.grid.largura * 2 + 3))
     for linha in tela:
         print("| " + " ".join(linha) + " |")
@@ -169,6 +178,7 @@ if __name__ == "__main__":
         print(
             "Controles: [A] Esquerda | [D] Direita | [W] Girar | [Enter] Apenas Cair | [Q] Sair"
         )
+        print(f"Pontos: {jogo.pontos} | Linhas: {jogo.linhas}")
         comando = input("Digite um comando: ").strip().lower()
 
         if comando == "q":
@@ -181,6 +191,9 @@ if __name__ == "__main__":
         elif comando == "w":
             jogo.tentar_rotacionar(horario=True)
 
-        # Todo turno fazemos a peça cair um bloco (a gravidade)
-        print(jogo.tempo_acumulado)
         jogo.atualizar(0.5)
+
+        if jogo.game_over:
+            renderizar_console(jogo)
+            print("Game Over")
+            break

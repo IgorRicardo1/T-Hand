@@ -1,5 +1,9 @@
 # T-Hand
 
+
+### Como Executar
+Usar o Python 3.12 ou superior. Na raiz do projeto, crie um ambiente virtual com `python -m venv .venv`, ative-o (no Windows: `.\.venv\Scripts\Activate.ps1`, e instale as dependências executando `pip install -r requirements.txt`. Depois, basta rodar `python main.py` para iniciar o jogo.
+
 Tetris com visual 3D controlado por rastreamento de mãos via webcam. As peças descem por um campo e o jogador usa gestos para mover e rotacionar.
 
 
