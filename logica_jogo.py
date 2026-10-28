@@ -179,7 +179,7 @@ if __name__ == "__main__":
             "Controles: [A] Esquerda | [D] Direita | [W] Girar | [Enter] Apenas Cair | [Q] Sair"
         )
         print(f"Pontos: {jogo.pontos} | Linhas: {jogo.linhas}")
-        comando = input("Digite um comando: ").strip().lower()
+        comando = input("Digite um comando:  ").strip().lower()
 
         if comando == "q":
             print("Saindo do teste...")

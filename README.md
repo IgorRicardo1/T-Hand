@@ -1,11 +1,25 @@
 # T-Hand
 
-
-### Como Executar
-Usar o Python 3.12 ou superior. Na raiz do projeto, crie um ambiente virtual com `python -m venv .venv`, ative-o (no Windows: `.\.venv\Scripts\Activate.ps1`, e instale as dependências executando `pip install -r requirements.txt`. Depois, basta rodar `python main.py` para iniciar o jogo.
-
 Tetris com visual 3D controlado por rastreamento de mãos via webcam. As peças descem por um campo e o jogador usa gestos para mover e rotacionar.
 
+## Como executar
+
+Usar o Python 3.12 ou superior. Na raiz do projeto, crie um ambiente virtual com `python -m venv .venv`, ative-o (no Windows: `.\.venv\Scripts\Activate.ps1`) e instale as dependências com `pip install -r requirements.txt`. Se o PowerShell bloquear a ativação, rode antes `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+
+O MediaPipe já instala o OpenCV, então não precisa instalar o `opencv-python` separado (os dois dão conflito).
+
+Por enquanto só a lógica pode ser testada, pelo terminal: `python logica_jogo.py` (A e D movem, W gira, Enter deixa cair, Q sai).
+
+## Status
+
+Feito:
+ - Lógica do jogo: peças, rotação, colisão, limpeza de linhas, pontuação e game over.
+
+Falta:
+ - Próxima peça;
+ - Rastreamento de mãos (`tracker.py`);
+ - Gráficos 3D (`graficos_3d.py`);
+ - Juntar tudo no `main.py`.
 
 ## Tecnologias
 
