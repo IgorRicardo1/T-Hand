@@ -48,9 +48,9 @@ Não depende do Ursina, o que permite testar a lógica isoladamente.
 - PecasPossiveis - Define os formatos disponíveis das peças (os 7 tetrominós clássicos: I, O, T, S, Z, J, L);
 - Peca - Uma peça em jogo: formato, posição no campo e rotação (90° no plano). Sabe se mover e rotacionar;
 - Grid - Matriz 2D do campo de jogo contendo apenas as células já fixadas. Controla colisões, fixação de peças e limpeza de linhas completas;
-- Jogo - Orquestra a partida. Guarda o Grid, a peça atual e a próxima peça, controla a queda, a pontuação e o fim de jogo.
+- Jogo - Orquestra a partida. Guarda o Grid e a peça atual, controla a queda, a pontuação e o fim de jogo.
 
-Ao encostar no fundo ou em outra peça, a peça atual é gravada no Grid (seus cubos viram células da matriz e ela deixa de existir como objeto) e a próxima peça assume seu lugar. Assim, sempre existe exatamente uma peça em movimento.
+Ao encostar no fundo ou em outra peça, a peça atual é gravada no Grid (seus cubos viram células da matriz e ela deixa de existir como objeto) e uma nova peça é sorteada em seu lugar. Assim, sempre existe exatamente uma peça em movimento.
 
 ➔```graficos_3d.py```
 
