@@ -34,7 +34,6 @@ class VisualGrid:
         self._configurar_camera()
 
     def _criar_arena(self):
-
         for y in range(self.altura + 1):
             self.paredes.append(VisualBloco(-1, y, "PAREDE"))
             self.paredes.append(VisualBloco(self.largura, y, "PAREDE"))
@@ -45,11 +44,11 @@ class VisualGrid:
     def _configurar_camera(self):
         centro_x = (self.largura - 1) / 2
         centro_y = -(self.altura - 1) / 2
-        self.editor_camera = EditorCamera(position=(centro_x, centro_y, 0))
         camera.z = -58
+        self.editor_camera = EditorCamera(position=(centro_x, centro_y, 0))
+        self.editor_camera.target_z = -58
 
     def atualizar(self, jogo):
-
         for bloco in self.blocos_dinamicos:
             destroy(bloco)
         self.blocos_dinamicos.clear()
@@ -74,6 +73,21 @@ if __name__ == "__main__":
 
     jogo = Jogo()
     arena = VisualGrid(jogo.grid.largura, jogo.grid.altura)
+
+    def input(key):
+        global jogo
+        if key in ("a", "left arrow"):
+            jogo.tentar_mover(-1, 0)
+        elif key in ("d", "right arrow"):
+            jogo.tentar_mover(1, 0)
+        elif key in ("s", "down arrow"):
+            jogo.tentar_mover(0, 1)
+        elif key in ("w", "up arrow"):
+            jogo.tentar_rotacionar(horario=True)
+        elif key == "q":
+            jogo.tentar_rotacionar(horario=False)
+        elif key == "r":
+            jogo = Jogo()
 
     def update():
         jogo.atualizar(time.dt)
