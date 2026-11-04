@@ -3,6 +3,7 @@ import urllib.request
 import cv2
 import mediapipe as mp
 from mediapipe.tasks.python import BaseOptions, vision
+from mediapipe.framework.formats import landmark_pb2
 
 URL_MODELO = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task"
 CAMINHO_MODELO = Path(__file__).with_name("hand_landmarker.task")
@@ -50,8 +51,17 @@ class HandTracker:
         resultado_mp = self.detector.detect_for_video(imagem_mp, self.timestamp)
 
         for mao in resultado_mp.hand_landmarks:
-            vision.drawing_utils.draw_landmarks(
-                frame, mao, vision.HandLandmarksConnections.HAND_CONNECTIONS
+            proto_mao = landmark_pb2.NormalizedLandmarkList()
+            proto_mao.landmark.extend([
+                landmark_pb2.NormalizedLandmark(x=p.x, y=p.y, z=p.z)
+                for p in mao
+            ])
+            mp.solutions.drawing_utils.draw_landmarks(
+                frame,
+                proto_mao,
+                mp.solutions.hands.HAND_CONNECTIONS,
+                mp.solutions.drawing_styles.get_default_hand_landmarks_style(),
+                mp.solutions.drawing_styles.get_default_hand_connections_style(),
             )
 
         return frame, ResultadoGesto()
