@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 import math
+import threading
 import urllib.request
 import cv2
 
@@ -49,6 +50,15 @@ class HandTracker:
             num_hands=2,
         )
         self.detector = vision.HandLandmarker.create_from_options(opcoes)
+        
+        self._lock = threading.Lock()
+        self._thread: threading.Thread | None = None
+        
+        self._rodando = False
+
+        self._tem_frame_novo = False
+        self._ultimo_frame: cv2.typing.MatLike | None = None
+        self._ultima_leitura = LeituraGesto()
 
     
     def _distancia(self, p1, p2) -> float:
@@ -128,7 +138,45 @@ class HandTracker:
 
         return frame, self.detectar_gesto(resultado_mp)
 
+
+    def _loop_captura(self):
+        while self._rodando:
+            frame, leitura = self.ler_frame()
+
+            if frame is None:
+                continue
+
+            with self._lock:
+                # Se havia uma pinça ainda não consumida pelo Ursina, preserva-a
+                if (
+                    self._tem_frame_novo
+                    and self._ultima_leitura.gesto in (TipoGesto.PINCA_DIREITA, TipoGesto.PINCA_ESQUERDA)
+                    and leitura.gesto == TipoGesto.NENHUM
+                ):
+                    leitura = self._ultima_leitura
+
+                self._ultimo_frame = frame
+                self._ultima_leitura = leitura
+                self._tem_frame_novo = True
+
+    def obter_dados(self) -> tuple[cv2.typing.MatLike, LeituraGesto] | None:
+        with self._lock:
+            if not self._tem_frame_novo or self._ultimo_frame is None:
+                return None
+            self._tem_frame_novo = False
+            return self._ultimo_frame, self._ultima_leitura
+
+    def iniciar(self):
+        if self._rodando:
+            return
+        self._rodando = True
+        self._thread = threading.Thread(target=self._loop_captura, daemon=True)
+        self._thread.start()
+
     def fechar(self):
+        self._rodando = False
+        if self._thread is not None and self._thread.is_alive():
+            self._thread.join(timeout=1.0)
         self.cap.release()
         self.detector.close()
         cv2.destroyAllWindows()
