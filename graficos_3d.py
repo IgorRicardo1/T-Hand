@@ -33,6 +33,8 @@ class VisualGrid:
         self._criar_arena()
         self._configurar_camera()
 
+        self._ultimo_estado = None
+
     def _criar_arena(self):
         for y in range(self.altura + 1):
             self.paredes.append(VisualBloco(-1, y, "PAREDE"))
@@ -49,6 +51,18 @@ class VisualGrid:
         self.editor_camera.target_z = -58
 
     def atualizar(self, jogo):
+        estado_atual = (
+            tuple(tuple(linha) for linha in jogo.grid.celulas),
+            jogo.peca_atual.letra,
+            tuple(jogo.peca_atual.origem),
+            tuple((c.x, c.y) for c in jogo.peca_atual.cubos),
+        )
+
+        if estado_atual == self._ultimo_estado:
+            return
+
+        self._ultimo_estado = estado_atual
+
         for bloco in self.blocos_dinamicos:
             destroy(bloco)
         self.blocos_dinamicos.clear()
