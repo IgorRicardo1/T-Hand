@@ -1,6 +1,10 @@
-from ursina import EditorCamera, Entity, Ursina, camera, color, destroy, time
-from logica_jogo import Jogo
+import math
+import cv2
 
+from panda3d.core import Texture as PandaTexture
+
+from ursina import EditorCamera, Entity, Texture, Ursina, application, camera, color, destroy, time
+from logica_jogo import Jogo
 
 class VisualBloco(Entity):
     CORES = {
@@ -32,6 +36,8 @@ class VisualGrid:
 
         self._criar_arena()
         self._configurar_camera()
+        self._textura_p3d: PandaTexture | None = None
+        self._criar_fundo()
 
         self._ultimo_estado = None
 
@@ -49,6 +55,38 @@ class VisualGrid:
         camera.z = -58
         self.editor_camera = EditorCamera(position=(centro_x, centro_y, 0))
         self.editor_camera.target_z = -58
+
+    def _criar_fundo(self):
+        distancia = 100
+        hfov, vfov = application.base.camLens.getFov()
+        largura_plano = 2 * distancia * math.tan(math.radians(hfov / 2))
+        altura_plano = 2 * distancia * math.tan(math.radians(vfov / 2))
+
+        self.fundo = Entity(
+            parent=camera,
+            model="quad",
+            position=(0, 0, distancia),
+            scale=(largura_plano, altura_plano, 1),
+            unlit=True,
+        )
+        self.fundo.setBin("background", 0)
+        self.fundo.setDepthWrite(False)
+
+    def atualizar_fundo(self, frame):
+        altura_f, largura_f = frame.shape[:2]
+
+        if self._textura_p3d is None:
+            self._textura_p3d = PandaTexture()
+            self._textura_p3d.setup2dTexture(
+                largura_f,
+                altura_f,
+                PandaTexture.T_unsigned_byte,
+                PandaTexture.F_rgb,
+            )
+            self.fundo.texture = Texture(self._textura_p3d)
+
+        frame_invertido = cv2.flip(frame, 0)
+        self._textura_p3d.setRamImage(frame_invertido)
 
     def atualizar(self, jogo):
         estado_atual = (

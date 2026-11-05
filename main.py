@@ -80,6 +80,7 @@ if __name__ == "__main__":
         if dados is not None:
             frame, leitura = dados
             controlador.aplicar(leitura, jogo)
+            arena.atualizar_fundo(frame)
 
         jogo.atualizar(time.dt)
         arena.atualizar(jogo)
