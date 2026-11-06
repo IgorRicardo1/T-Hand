@@ -4,21 +4,42 @@ Tetris com visual 3D controlado por rastreamento de mãos via webcam. As peças 
 
 ## Como executar
 
-Usar o Python 3.12 ou superior. Na raiz do projeto, crie um ambiente virtual com `python -m venv .venv`, ative-o (no Windows: `.\.venv\Scripts\Activate.ps1`) e instale as dependências com `pip install -r requirements.txt`. Se o PowerShell bloquear a ativação, rode antes `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+### 1. Instalar o Python (3.12 ou superior)
 
-O MediaPipe já instala o OpenCV, então não precisa instalar o `opencv-python` separado (os dois dão conflito).
+Verifique no terminal se o Python já está instalado:
 
-Por enquanto só a lógica pode ser testada, pelo terminal: `python logica_jogo.py` (A e D movem, W gira, Enter deixa cair, Q sai).
+```powershell
+python --version
+```
+
+Caso não tenha o Python (ou a versão seja inferior à 3.12), instale de uma das formas abaixo:
+- **Pelo instalador oficial**: baixe em https://www.python.org/downloads/ e, na primeira tela da instalação no Windows, **marque a opção `"Add python.exe to PATH"`** antes de clicar em *Install Now*.
+- **Pelo terminal do Windows (winget)**: rode `winget install Python.Python.3.12`.
+
+Depois de instalar, feche e abra o terminal novamente para o comando `python` ser reconhecido.
+
+### 2. Configurar o ambiente virtual e dependências
+
+Na raiz do projeto, crie um ambiente virtual com `python -m venv .venv`, ative-o (no Windows: `.\.venv\Scripts\Activate.ps1`) e instale as dependências com `pip install -r requirements.txt`. Se o PowerShell bloquear a ativação, rode antes `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+
+O MediaPipe já instala o OpenCV, então não precisa instalar o `opencv-python` separado (os dois dão conflito). O modelo `hand_landmarker.task` já acompanha o projeto para execução offline.
+
+### 3. Testar os módulos
+
+Com o ambiente virtual ativado:
+- Versão 3D com teclado: `python graficos_3d.py` (A/D ou setas movem, W/Q giram, S acelera a queda, R reinicia).
+- Lógica pelo terminal: `python logica_jogo.py` (A e D movem, W gira, Enter deixa cair, Q sai).
+- Rastreamento da webcam: `python tracker.py` (ESC fecha a janela).
 
 ## Status
 
 Feito:
- - Lógica do jogo: peças, rotação, colisão, limpeza de linhas, pontuação e game over.
+ - Lógica do jogo: peças, rotação, colisão, limpeza de linhas, pontuação e game over;
+ - Gráficos 3D (`graficos_3d.py`).
 
 Falta:
  - Próxima peça;
- - Rastreamento de mãos (`tracker.py`);
- - Gráficos 3D (`graficos_3d.py`);
+ - Rastreamento de mãos (`tracker.py` - em andamento);
  - Juntar tudo no `main.py`.
 
 ## Tecnologias
