@@ -26,6 +26,7 @@ class HandTracker:
     def __init__(self, camera_index=0):
         self.cap = cv2.VideoCapture(camera_index)
         self.timestamp = 0
+        self.pinca_anterior = {"Esquerda": False, "Direita": False}
 
         opcoes = vision.HandLandmarkerOptions(
             base_options=BaseOptions(model_asset_path=str(CAMINHO_MODELO)),
@@ -64,6 +65,7 @@ class HandTracker:
 
         gesto = ResultadoGesto()
         centros_punhos_x = []
+        pinca_atual = {"Esquerda": False, "Direita": False}
 
         for mao, classificacao in zip(
             resultado_mp.hand_landmarks, resultado_mp.handedness
@@ -72,20 +74,25 @@ class HandTracker:
                 frame, mao, vision.HandLandmarksConnections.HAND_CONNECTIONS
             )
 
-            eh_direita = classificacao[0].category_name == "Left"
+            lado = "Direita" if classificacao[0].category_name == "Left" else "Esquerda"
 
             if self._eh_punho(mao):
                 centros_punhos_x.append(mao[9].x)
             elif self._eh_pinca(mao):
-                if eh_direita:
-                    gesto.pinca_direita = True
-                else:
-                    gesto.pinca_esquerda = True
+                pinca_atual[lado] = True
 
         if len(centros_punhos_x) == 2:
             gesto.punhos_fechados = True
             gesto.posicao_x = sum(centros_punhos_x) / 2
+        else:
+            gesto.pinca_esquerda = (
+                pinca_atual["Esquerda"] and not self.pinca_anterior["Esquerda"]
+            )
+            gesto.pinca_direita = (
+                pinca_atual["Direita"] and not self.pinca_anterior["Direita"]
+            )
 
+        self.pinca_anterior = pinca_atual
         return frame, gesto
 
     def fechar(self):

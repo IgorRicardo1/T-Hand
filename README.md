@@ -24,23 +24,24 @@ Na raiz do projeto, crie um ambiente virtual com `python -m venv .venv`, ative-o
 
 O MediaPipe já instala o OpenCV, então não precisa instalar o `opencv-python` separado (os dois dão conflito). O modelo `hand_landmarker.task` já acompanha o projeto para execução offline.
 
-### 3. Testar os módulos
+### 3. Executar e testar
 
 Com o ambiente virtual ativado:
+- **Jogo completo (3D + Webcam)**: `python main.py`
 - Versão 3D com teclado: `python graficos_3d.py` (A/D ou setas movem, W/Q giram, S acelera a queda, R reinicia).
 - Lógica pelo terminal: `python logica_jogo.py` (A e D movem, W gira, Enter deixa cair, Q sai).
-- Rastreamento da webcam: `python tracker.py` (ESC fecha a janela).
+- Rastreamento da webcam isolado: `python tracker.py` (ESC fecha a janela).
 
 ## Status
 
 Feito:
  - Lógica do jogo: peças, rotação, colisão, limpeza de linhas, pontuação e game over;
- - Gráficos 3D (`graficos_3d.py`).
+ - Gráficos 3D (`graficos_3d.py`);
+ - Rastreamento de mãos (`tracker.py`);
+ - Integração no `main.py`.
 
 Falta:
- - Próxima peça;
- - Rastreamento de mãos (`tracker.py` - em andamento);
- - Juntar tudo no `main.py`.
+ - Próxima peça.
 
 ## Tecnologias
 
