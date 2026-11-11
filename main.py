@@ -1,4 +1,3 @@
-import cv2
 from ursina import Ursina, application, time
 from graficos_3d import VisualGrid
 from logica_jogo import Jogo
@@ -41,8 +40,7 @@ if __name__ == "__main__":
 
         frame, gesto = tracker.ler_frame()
         if frame is not None:
-            cv2.imshow("Webcam - T-Hand", frame)
-            cv2.waitKey(1)
+            arena.atualizar_camera(frame)
 
             if gesto.pinca_direita:
                 jogo.tentar_rotacionar(horario=True)

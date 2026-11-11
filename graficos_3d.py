@@ -1,4 +1,16 @@
-from ursina import EditorCamera, Entity, Ursina, camera, color, destroy, time
+import cv2
+from panda3d.core import Texture as PandaTexture
+from ursina import (
+    EditorCamera,
+    Entity,
+    Text,
+    Texture,
+    Ursina,
+    camera,
+    color,
+    destroy,
+    time,
+)
 from logica_jogo import Jogo
 
 
@@ -30,6 +42,15 @@ class VisualGrid:
         self.paredes = []
         self.blocos_dinamicos = []
         self.ultimo_estado = None
+        self.textura_camera = None
+        self.placar = Text(position=(-0.85, 0.45), scale=1.2)
+        self.painel_camera = Entity(
+            parent=camera.ui,
+            model="quad",
+            scale=(0.36, 0.27),
+            position=(0.62, 0.34),
+            enabled=False,
+        )
 
         self._criar_arena()
         self._configurar_camera()
@@ -49,16 +70,34 @@ class VisualGrid:
         self.editor_camera = EditorCamera(position=(centro_x, centro_y, 0))
         self.editor_camera.target_z = -58
 
+    def atualizar_camera(self, frame):
+        altura_f, largura_f = frame.shape[:2]
+        if self.textura_camera is None:
+            self.textura_camera = PandaTexture()
+            self.textura_camera.setup2dTexture(
+                largura_f, altura_f, PandaTexture.T_unsigned_byte, PandaTexture.F_rgb
+            )
+            self.painel_camera.texture = Texture(self.textura_camera)
+            self.painel_camera.enabled = True
+
+        self.textura_camera.setRamImage(cv2.flip(frame, 0))
+
     def atualizar(self, jogo):
         estado_atual = (
             tuple(tuple(linha) for linha in jogo.grid.celulas),
             jogo.peca_atual.letra,
             tuple(jogo.peca_atual.origem),
             tuple((c.x, c.y) for c in jogo.peca_atual.cubos),
+            jogo.proxima_peca.letra,
+            jogo.game_over,
         )
         if estado_atual == self.ultimo_estado:
             return
         self.ultimo_estado = estado_atual
+
+        self.placar.text = f"Pontos: {jogo.pontos}\nLinhas: {jogo.linhas}"
+        if jogo.game_over:
+            self.placar.text += "\nGAME OVER (R para reiniciar)"
 
         for bloco in self.blocos_dinamicos:
             destroy(bloco)
@@ -77,6 +116,13 @@ class VisualGrid:
                 self.blocos_dinamicos.append(
                     VisualBloco(x_real, y_real, jogo.peca_atual.letra)
                 )
+
+        for cubo in jogo.proxima_peca.cubos:
+            x_prev = self.largura + 4 + cubo.x
+            y_prev = 2 + cubo.y
+            self.blocos_dinamicos.append(
+                VisualBloco(x_prev, y_prev, jogo.proxima_peca.letra)
+            )
 
 
 if __name__ == "__main__":

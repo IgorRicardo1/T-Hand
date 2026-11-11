@@ -35,13 +35,10 @@ Com o ambiente virtual ativado:
 ## Status
 
 Feito:
- - Lógica do jogo: peças, rotação, colisão, limpeza de linhas, pontuação e game over;
+ - Lógica do jogo: peças, próxima peça, rotação, colisão, limpeza de linhas, pontuação e game over;
  - Gráficos 3D (`graficos_3d.py`);
  - Rastreamento de mãos (`tracker.py`);
  - Integração no `main.py`.
-
-Falta:
- - Próxima peça.
 
 ## Tecnologias
 

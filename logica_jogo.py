@@ -101,6 +101,7 @@ class Jogo:
         self.linhas = 0
         self.grid = Grid()
         self.game_over = False
+        self.proxima_peca = Peca(PecasPossiveis.sortear())
         self.nova_peca()
 
         self.gravidade = 1
@@ -109,7 +110,8 @@ class Jogo:
         self.tempo_acumulado = 0.0
 
     def nova_peca(self):
-        self.peca_atual = Peca(PecasPossiveis.sortear())
+        self.peca_atual = self.proxima_peca
+        self.proxima_peca = Peca(PecasPossiveis.sortear())
         if not self.grid.valida_posicao(self.peca_atual):
             self.game_over = True
 
@@ -178,7 +180,9 @@ if __name__ == "__main__":
         print(
             "Controles: [A] Esquerda | [D] Direita | [W] Girar | [Enter] Apenas Cair | [Q] Sair"
         )
-        print(f"Pontos: {jogo.pontos} | Linhas: {jogo.linhas}")
+        print(
+            f"Pontos: {jogo.pontos} | Linhas: {jogo.linhas} | Próxima: {jogo.proxima_peca.letra}"
+        )
         comando = input("Digite um comando:  ").strip().lower()
 
         if comando == "q":
