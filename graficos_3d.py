@@ -1,17 +1,24 @@
+import random
 import cv2
 from panda3d.core import Texture as PandaTexture
 from ursina import (
+    DirectionalLight,
     EditorCamera,
     Entity,
     Text,
     Texture,
     Ursina,
+    Vec2,
+    Vec3,
     camera,
     color,
     destroy,
     time,
 )
+from ursina.shaders import lit_with_shadows_shader
 from logica_jogo import Jogo
+
+lit_with_shadows_shader.default_input["shadow_color"] = color.rgba(0, 0, 0, 0.45)
 
 
 class VisualBloco(Entity):
@@ -32,6 +39,7 @@ class VisualBloco(Entity):
             color=self.CORES.get(tipo, color.white),
             texture="white_cube",
             position=(x, -y, 0),
+            shader=lit_with_shadows_shader,
         )
 
 
@@ -43,7 +51,8 @@ class VisualGrid:
         self.blocos_dinamicos = []
         self.ultimo_estado = None
         self.textura_camera = None
-        self.placar = Text(position=(-0.85, 0.45), scale=1.2)
+        self.mostrar_fantasma = True
+        self.placar = Text(position=(-0.85, 0.45), scale=1.2, color=color.black)
         self.painel_camera = Entity(
             parent=camera.ui,
             model="quad",
@@ -54,8 +63,20 @@ class VisualGrid:
 
         self._criar_arena()
         self._configurar_camera()
+        self._configurar_iluminacao()
 
     def _criar_arena(self):
+        centro_x = (self.largura - 1) / 2
+        centro_y = -(self.altura - 1) / 2
+
+        self.parede_fundo = Entity(
+            model="cube",
+            color=color.white,
+            position=(centro_x, centro_y, 2.8),
+            scale=(75, 50, 0.5),
+            shader=lit_with_shadows_shader,
+        )
+
         for y in range(self.altura + 1):
             self.paredes.append(VisualBloco(-1, y, "PAREDE"))
             self.paredes.append(VisualBloco(self.largura, y, "PAREDE"))
@@ -67,8 +88,21 @@ class VisualGrid:
         centro_x = (self.largura - 1) / 2
         centro_y = -(self.altura - 1) / 2
         camera.z = -58
-        self.editor_camera = EditorCamera(position=(centro_x, centro_y, 0))
+        self.editor_camera = EditorCamera(
+            position=(centro_x, centro_y, 0),
+            rotation=(6, -10, 0),
+        )
         self.editor_camera.target_z = -58
+
+    def _configurar_iluminacao(self):
+        centro_x = (self.largura - 1) / 2
+        centro_y = -(self.altura - 1) / 2
+        self.luz = DirectionalLight(
+            position=(centro_x, centro_y, 0),
+            shadow_map_resolution=Vec2(2048, 2048),
+            shadows=True,
+        )
+        self.luz.look_at(self.luz.position + Vec3(1.5, -1.2, 1.4))
 
     def atualizar_camera(self, frame):
         altura_f, largura_f = frame.shape[:2]
@@ -82,7 +116,21 @@ class VisualGrid:
 
         self.textura_camera.setRamImage(cv2.flip(frame, 0))
 
+    def _explodir_cubos(self, cubos_explodindo):
+        for x, y, letra in cubos_explodindo:
+            bloco = VisualBloco(x, y, letra)
+            destino_x = x + (x - 4.5) * 0.8 + random.uniform(-1.0, 1.0)
+            destino_y = -y + random.uniform(-2.0, 3.0)
+            destino_z = random.uniform(-20.0, -12.0)
+            bloco.animate_position((destino_x, destino_y, destino_z), duration=0.45)
+            bloco.animate_scale(0, duration=0.45)
+            destroy(bloco, delay=0.5)
+        cubos_explodindo.clear()
+
     def atualizar(self, jogo):
+        if jogo.cubos_explodindo:
+            self._explodir_cubos(jogo.cubos_explodindo)
+
         estado_atual = (
             tuple(tuple(linha) for linha in jogo.grid.celulas),
             jogo.peca_atual.letra,
@@ -90,12 +138,15 @@ class VisualGrid:
             tuple((c.x, c.y) for c in jogo.peca_atual.cubos),
             jogo.proxima_peca.letra,
             jogo.game_over,
+            self.mostrar_fantasma,
         )
         if estado_atual == self.ultimo_estado:
             return
         self.ultimo_estado = estado_atual
 
-        self.placar.text = f"Pontos: {jogo.pontos}\nLinhas: {jogo.linhas}"
+        self.placar.text = (
+            f"Pontos: {jogo.pontos}\nLinhas: {jogo.linhas}\nNivel: {jogo.nivel}"
+        )
         if jogo.game_over:
             self.placar.text += "\nGAME OVER (R para reiniciar)"
 
@@ -116,6 +167,26 @@ class VisualGrid:
                 self.blocos_dinamicos.append(
                     VisualBloco(x_real, y_real, jogo.peca_atual.letra)
                 )
+
+        if self.mostrar_fantasma and not jogo.game_over:
+            y_fantasma = jogo.y_de_aterrissagem()
+            if y_fantasma > jogo.peca_atual.origem[1]:
+                celulas_peca = {
+                    (jogo.peca_atual.origem[0] + c.x, jogo.peca_atual.origem[1] + c.y)
+                    for c in jogo.peca_atual.cubos
+                }
+                for cubo in jogo.peca_atual.cubos:
+                    x_real = jogo.peca_atual.origem[0] + cubo.x
+                    y_real = y_fantasma + cubo.y
+                    if (x_real, y_real) in celulas_peca:
+                        continue
+                    if (
+                        0 <= y_real < jogo.grid.altura
+                        and 0 <= x_real < jogo.grid.largura
+                    ):
+                        fantasma = VisualBloco(x_real, y_real, jogo.peca_atual.letra)
+                        fantasma.alpha = 0.35
+                        self.blocos_dinamicos.append(fantasma)
 
         for cubo in jogo.proxima_peca.cubos:
             x_prev = self.largura + 4 + cubo.x
@@ -143,6 +214,8 @@ if __name__ == "__main__":
             jogo.tentar_rotacionar(horario=True)
         elif key == "q":
             jogo.tentar_rotacionar(horario=False)
+        elif key == "g":
+            arena.mostrar_fantasma = not arena.mostrar_fantasma
         elif key == "r":
             jogo = Jogo()
 

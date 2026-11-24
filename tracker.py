@@ -15,11 +15,13 @@ class ResultadoGesto:
         pinca_esquerda=False,
         pinca_direita=False,
         posicao_x=None,
+        posicao_y=None,
     ):
         self.punhos_fechados = punhos_fechados
         self.pinca_esquerda = pinca_esquerda
         self.pinca_direita = pinca_direita
         self.posicao_x = posicao_x
+        self.posicao_y = posicao_y
 
 
 class HandTracker:
@@ -65,6 +67,7 @@ class HandTracker:
 
         gesto = ResultadoGesto()
         centros_punhos_x = []
+        centros_punhos_y = []
         pinca_atual = {"Esquerda": False, "Direita": False}
 
         for mao, classificacao in zip(
@@ -78,12 +81,14 @@ class HandTracker:
 
             if self._eh_punho(mao):
                 centros_punhos_x.append(mao[9].x)
+                centros_punhos_y.append(mao[9].y)
             elif self._eh_pinca(mao):
                 pinca_atual[lado] = True
 
         if len(centros_punhos_x) == 2:
             gesto.punhos_fechados = True
             gesto.posicao_x = sum(centros_punhos_x) / 2
+            gesto.posicao_y = sum(centros_punhos_y) / 2
         else:
             gesto.pinca_esquerda = (
                 pinca_atual["Esquerda"] and not self.pinca_anterior["Esquerda"]
@@ -111,7 +116,9 @@ if __name__ == "__main__":
 
         status = []
         if gesto.punhos_fechados:
-            status.append(f"PUNHOS (x={gesto.posicao_x:.2f})")
+            status.append(
+                f"PUNHOS (x={gesto.posicao_x:.2f}, y={gesto.posicao_y:.2f})"
+            )
         if gesto.pinca_esquerda:
             status.append("PINCA ESQ")
         if gesto.pinca_direita:

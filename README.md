@@ -28,15 +28,15 @@ O MediaPipe já instala o OpenCV, então não precisa instalar o `opencv-python`
 
 Com o ambiente virtual ativado:
 - **Jogo completo (3D + Webcam)**: `python main.py`
-- Versão 3D com teclado: `python graficos_3d.py` (A/D ou setas movem, W/Q giram, S acelera a queda, R reinicia).
+- Versão 3D com teclado: `python graficos_3d.py` (A/D ou setas movem, W/Q giram, S acelera a queda, G ativa/desativa peça fantasma, R reinicia).
 - Lógica pelo terminal: `python logica_jogo.py` (A e D movem, W gira, Enter deixa cair, Q sai).
 - Rastreamento da webcam isolado: `python tracker.py` (ESC fecha a janela).
 
 ## Status
 
 Feito:
- - Lógica do jogo: peças, próxima peça, rotação, colisão, limpeza de linhas, pontuação e game over;
- - Gráficos 3D (`graficos_3d.py`);
+ - Lógica do jogo: peças, próxima peça, peça fantasma, rotação, colisão, limpeza de linhas, níveis de dificuldade, pontuação e game over;
+ - Gráficos 3D (`graficos_3d.py`): arena 3D, iluminação com sombras reais, animação de explosão das linhas e mini-câmera na interface;
  - Rastreamento de mãos (`tracker.py`);
  - Integração no `main.py`.
 
@@ -48,7 +48,7 @@ Feito:
 
 ## Controles
 
- - Duas mãos fechadas: move a peça para a esquerda ou para a direita;
+ - Duas mãos fechadas: move a peça para a esquerda/direita ou arrasta para baixo para acelerar a queda;
  - Pinça com a mão direita: rotaciona a peça no sentido horário;
  - Pinça com a mão esquerda: rotaciona a peça no sentido anti-horário.
 

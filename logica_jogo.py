@@ -56,6 +56,7 @@ class Grid:
         self.largura = largura
         self.altura = altura
         self.celulas = [[None for _ in range(largura)] for _ in range(altura)]
+        self.cubos_eliminados = []
 
     def valida_posicao(self, peca):
         for cubo in peca.cubos:
@@ -84,9 +85,12 @@ class Grid:
 
     def limpar_linha(self):
         linhas_completadas = 0
+        self.cubos_eliminados = []
 
         for y in range(self.altura):
             if None not in self.celulas[y]:
+                for x, letra in enumerate(self.celulas[y]):
+                    self.cubos_eliminados.append((x, y, letra))
                 self.celulas.pop(y)
                 linhas_completadas += 1
                 self.celulas.insert(0, [None for _ in range(self.largura)])
@@ -99,8 +103,10 @@ class Jogo:
     def __init__(self):
         self.pontos = 0
         self.linhas = 0
+        self.nivel = 1
         self.grid = Grid()
         self.game_over = False
+        self.cubos_explodindo = []
         self.proxima_peca = Peca(PecasPossiveis.sortear())
         self.nova_peca()
 
@@ -126,8 +132,14 @@ class Jogo:
             if not self.tentar_mover(0, self.gravidade):
                 self.grid.fixar_peca(self.peca_atual)
                 linhas_eliminadas = self.grid.limpar_linha()
+                if linhas_eliminadas > 0:
+                    self.cubos_explodindo.extend(self.grid.cubos_eliminados)
                 self.linhas += linhas_eliminadas
-                self.pontos += self.NUMERO_PONTOS.get(linhas_eliminadas, 0)
+                self.nivel = 1 + (self.linhas // 2)
+                self.intervalo_queda = max(0.2, 1.0 - (self.nivel - 1) * 0.1)
+                self.pontos += (
+                    self.NUMERO_PONTOS.get(linhas_eliminadas, 0) * self.nivel
+                )
                 self.nova_peca()
 
     def tentar_rotacionar(self, horario=True):
@@ -148,6 +160,15 @@ class Jogo:
             return False
 
         return True
+
+    def y_de_aterrissagem(self):
+        peca = self.peca_atual
+        y_original = peca.origem[1]
+        while self.grid.valida_posicao(peca):
+            peca.origem[1] += 1
+        y_final = peca.origem[1] - 1
+        peca.origem[1] = y_original
+        return y_final
 
 
 def renderizar_console(jogo):
