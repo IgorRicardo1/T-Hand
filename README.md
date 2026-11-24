@@ -1,6 +1,6 @@
-# T-Hand
+# T-Hand (Overdrive 3D Edition)
 
-Tetris com visual 3D controlado por rastreamento de mãos via webcam. As peças descem por um campo e o jogador usa gestos para mover e rotacionar.
+Tetris com visual 3D avançado controlado por rastreamento de mãos via webcam. Inclui shaders GLSL customizados, pós-processamento HDR Bloom, 3 temas visuais em tempo real, trilha sonora Synthwave procedural em estéreo (Korobeiniki) e efeitos de partículas.
 
 ## Como executar
 
@@ -27,55 +27,33 @@ O MediaPipe já instala o OpenCV, então não precisa instalar o `opencv-python`
 ### 3. Executar e testar
 
 Com o ambiente virtual ativado:
-- **Jogo completo (3D + Webcam)**: `python main.py`
-- Versão 3D com teclado: `python graficos_3d.py` (A/D ou setas movem, W/Q giram, S acelera a queda, G ativa/desativa peça fantasma, R reinicia).
-- Lógica pelo terminal: `python logica_jogo.py` (A e D movem, W gira, Enter deixa cair, Q sai).
-- Rastreamento da webcam isolado: `python tracker.py` (ESC fecha a janela).
-
-## Status
-
-Feito:
- - Lógica do jogo: peças, próxima peça, peça fantasma, rotação, colisão, limpeza de linhas, níveis de dificuldade, pontuação e game over;
- - Gráficos 3D (`graficos_3d.py`): arena 3D, iluminação com sombras reais, animação de explosão das linhas e mini-câmera na interface;
- - Rastreamento de mãos (`tracker.py`);
- - Integração no `main.py`.
-
-## Tecnologias
-
- - Python;
- - Ursina Engine (motor 3D);
- - MediaPipe (rastreamento de mãos).
+- **Jogo completo (3D + Webcam + Áudio)**: `python main.py`
+- Versão 3D com teclado: `python graficos_3d.py`
+- Lógica pelo terminal: `python logica_jogo.py`
+- Rastreamento AR da webcam isolado: `python tracker.py` (ESC fecha a janela).
 
 ## Controles
 
- - Duas mãos fechadas: move a peça para a esquerda/direita ou arrasta para baixo para acelerar a queda;
- - Pinça com a mão direita: rotaciona a peça no sentido horário;
- - Pinça com a mão esquerda: rotaciona a peça no sentido anti-horário.
+### Gestos na Webcam
+ - **Duas mãos fechadas**: arrasta a peça para a esquerda/direita ou para baixo;
+ - **Puxão rápido para baixo (punhos fechados)**: *Hard Drop* (queda instantânea);
+ - **Pinça com a mão direita**: rotaciona a peça no sentido horário;
+ - **Pinça com a mão esquerda**: rotaciona a peça no sentido anti-horário;
+ - **Pinça dupla (as duas mãos ao mesmo tempo)**: guarda/troca a peça na Reserva (*Hold*).
+
+### Atalhos de Teclado
+ - `A` / `D` ou Setas: mover horizontalmente | `S` / Seta Baixo: descer suave;
+ - `W` / Seta Cima: girar horário | `Q`: girar anti-horário;
+ - `Espaço`: *Hard Drop* | `C` ou `Shift`: Reserva (*Hold*);
+ - `T`: alternar entre os 3 temas 3D (`CYBER NEON`, `STUDIO GLASS`, `SOLAR VAPORWAVE`);
+ - `M`: ativar/mutar música Synthwave | `G`: ativar/desativar peça fantasma;
+ - `P`: pausar | `R`: reiniciar | `ESC`: sair.
 
 ## Estrutura
 
-➔```tracker.py```
-
-- HandTracker - Inicializa a webcam e o MediaPipe. Processa cada frame e identifica os gestos das mãos;
-- ResultadoGesto - Armazena o resultado dos gestos detectados em um frame (punhos fechados, pinça esquerda, pinça direita).
-
-➔```logica_jogo.py```
-
-Não depende do Ursina, o que permite testar a lógica isoladamente.
-
-- CuboUnico - Representa um único cubo dentro de uma peça. Guarda sua posição relativa (x, y);
-- PecasPossiveis - Define os formatos disponíveis das peças (os 7 tetrominós clássicos: I, O, T, S, Z, J, L);
-- Peca - Uma peça em jogo: formato, posição no campo e rotação (90° no plano). Sabe se mover e rotacionar;
-- Grid - Matriz 2D do campo de jogo contendo apenas as células já fixadas. Controla colisões, fixação de peças e limpeza de linhas completas;
-- Jogo - Orquestra a partida. Guarda o Grid e a peça atual, controla a queda, a pontuação e o fim de jogo.
-
-Ao encostar no fundo ou em outra peça, a peça atual é gravada no Grid (seus cubos viram células da matriz e ela deixa de existir como objeto) e uma nova peça é sorteada em seu lugar. Assim, sempre existe exatamente uma peça em movimento.
-
-➔```graficos_3d.py```
-
-- VisualBloco - Representação gráfica de um cubo na tela usando Ursina (cor, posição, textura);
-- VisualGrid - Desenha a arena 3D (paredes, chão, iluminação) e sincroniza a visualização com a lógica do jogo (células do Grid e peça atual).
-
-➔```main.py```
-
-- Ponto de entrada. Instancia todas as classes, conecta os gestos da webcam à lógica do jogo e roda o loop principal do Ursina.
+- `main.py` — Ponto de entrada; integra os gestos em tempo real da thread da webcam com a lógica e a cena 3D.
+- `logica_jogo.py` — Regras oficiais (*7-Bag Randomizer*, fila das 3 próximas peças, *Hold*, *Wall Kick*, *Combos*, *Back-to-Back Tetris* e *Perfect Clear*).
+- `graficos_3d.py` — Arena 3D, vitrines holográficas giratórias, interpolação a 60+ FPS, explosões e HUD.
+- `efeitos_visuais.py` — Shaders GLSL (`SHADER_BLOCO_PBR` e `SHADER_FUNDO_CYBER`), pós-processamento GPU HDR Bloom (`CommonFilters`), texturas procedurais via Pillow e campo estelar 3D.
+- `audio_synth.py` — Sintetizador estéreo 44.1 kHz (`NumPy` + `pygame.mixer`) que gera a trilha Synthwave *Korobeiniki* e 16 canais de SFX em memória.
+- `tracker.py` — Captura assíncrona em thread dedicada com MediaPipe e HUD de Realidade Aumentada em OpenCV.
